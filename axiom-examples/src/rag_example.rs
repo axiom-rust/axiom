@@ -2,9 +2,9 @@
 
 use std::sync::Arc;
 
-use axiom_core::Message;
-use axiom_llm::{LlmGateway, OpenAIProvider, ProviderConfig};
-use axiom_rag::{
+use axiom_ai_core::Message;
+use axiom_ai_llm::{LlmGateway, OpenAIProvider, ProviderConfig};
+use axiom_ai_rag::{
     Document, DocumentProcessor, EmbeddingService, LocalEmbeddingModel,
     VectorStoreFactory, RetrievalEngine, RetrievalConfig
 };

@@ -4,7 +4,7 @@ use std::time::Duration;
 use std::future::Future;
 use tokio::time::{sleep, timeout};
 
-use axiom_core::{Result, AxiomError};
+use axiom_ai_core::{Result, AxiomError};
 
 /// Configuration for retry behavior
 #[derive(Debug, Clone)]

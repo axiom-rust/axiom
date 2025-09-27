@@ -21,10 +21,10 @@ uuid = { workspace = true }
 chrono = { workspace = true }
 futures = { workspace = true }
 
-# Vector operations and ML
-candle-core = { workspace = true }
-candle-nn = { workspace = true }
-candle-transformers = { workspace = true }
+# Vector operations and ML - temporarily disabled due to dependency conflicts
+# candle-core = { workspace = true }
+# candle-nn = { workspace = true }
+# candle-transformers = { workspace = true }
 
 # Database and storage
 sqlx = { workspace = true }

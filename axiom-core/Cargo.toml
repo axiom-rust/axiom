@@ -1,5 +1,5 @@
 [package]
-name = "axiom-core"
+name = "axiom-ai-core"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

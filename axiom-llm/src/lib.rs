@@ -21,5 +21,5 @@ pub mod prelude {
         LlmGateway, LlmProvider, LlmRequest, LlmResponse,
         RetryConfig, RateLimitConfig, LlmMetrics,
     };
-    pub use axiom_core::prelude::*;
+    pub use axiom_ai_core::prelude::*;
 }

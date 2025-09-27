@@ -1,6 +1,6 @@
 //! WASM sandbox example
 
-use axiom_wasm::{WasmSandbox, WasmSandboxBuilder, SecurityPolicy, ResourceLimits};
+use axiom_ai_wasm::{WasmSandbox, WasmSandboxBuilder, SecurityPolicy, ResourceLimits};
 
 /// Example of WASM sandboxing
 pub async fn run_wasm_sandbox_example() -> anyhow::Result<()> {

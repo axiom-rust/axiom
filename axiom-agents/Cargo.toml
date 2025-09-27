@@ -1,5 +1,5 @@
 [package]
-name = "axiom-agents"
+name = "axiom-ai-agents"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -8,12 +8,13 @@ repository.workspace = true
 description = "Agent framework with tools, memory, and execution planning"
 
 [dependencies]
-axiom-core = { path = "../axiom-core" }
-axiom-llm = { path = "../axiom-llm" }
+axiom-ai-core = "0.1.0"
+axiom-ai-llm = "0.1.0"
 async-trait = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 tokio = { workspace = true, features = ["full"] }
+tokio-stream = "0.1"
 anyhow = { workspace = true }
 thiserror = { workspace = true }
 tracing = { workspace = true }

@@ -12,11 +12,11 @@ name = "axiom-examples"
 path = "src/main.rs"
 
 [dependencies]
-axiom-core = { path = "../axiom-core" }
-axiom-llm = { path = "../axiom-llm" }
-axiom-agents = { path = "../axiom-agents" }
-axiom-rag = { path = "../axiom-rag" }
-axiom-wasm = { path = "../axiom-wasm" }
+axiom-ai-core = { path = "../axiom-core" }
+axiom-ai-llm = { path = "../axiom-llm" }
+axiom-ai-agents = { path = "../axiom-agents" }
+# axiom-rag = { path = "../axiom-rag" }  # Temporarily disabled
+# axiom-wasm = { path = "../axiom-wasm" }  # Temporarily disabled
 
 tokio = { workspace = true, features = ["full"] }
 serde = { workspace = true }

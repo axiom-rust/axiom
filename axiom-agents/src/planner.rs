@@ -3,7 +3,8 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use axiom_core::{Message, Result, AxiomError, MemoryType};
+use axiom_ai_core::{Message, Result, AxiomError, MemoryType};
+// Types are defined in this module
 use crate::agent::{PlanningRequest, ToolInfo};
 
 /// Trait for planning agent execution
@@ -147,7 +148,7 @@ impl Planner for SimplePlanner {
 
 impl SimplePlanner {
     /// Check if we should retrieve memory
-    fn should_retrieve_memory(&self, message: &str, context: &[axiom_core::MemoryItem]) -> bool {
+    fn should_retrieve_memory(&self, message: &str, context: &[axiom_ai_core::MemoryItem]) -> bool {
         // Simple heuristic: retrieve memory if context is empty or message asks for information
         context.is_empty() || message.to_lowercase().contains("remember") || message.to_lowercase().contains("recall")
     }
@@ -259,7 +260,7 @@ struct ToolCall {
 /// Advanced planner that uses LLM for planning
 pub struct LLMPlanner {
     /// LLM gateway for planning
-    llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>,
+    llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>,
     /// Maximum number of steps
     max_steps: usize,
     /// Planning model
@@ -268,7 +269,7 @@ pub struct LLMPlanner {
 
 impl LLMPlanner {
     /// Create a new LLM planner
-    pub fn new(llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>, model: String) -> Self {
+    pub fn new(llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>, model: String) -> Self {
         Self {
             llm_gateway,
             max_steps: 10,
@@ -290,8 +291,8 @@ impl Planner for LLMPlanner {
         let prompt = self.create_planning_prompt(&request);
         
         // Call LLM to generate plan
-        let llm_request = axiom_llm::LlmRequest::new(
-            vec![axiom_core::Message::user(prompt)],
+        let llm_request = axiom_ai_llm::LlmRequest::new(
+            vec![axiom_ai_core::Message::user(prompt)],
             self.model.clone(),
         );
 
@@ -313,10 +314,10 @@ impl LLMPlanner {
         for message in &request.conversation {
             prompt.push_str(&format!("{}: {}\n", 
                 match message.role {
-                    axiom_core::MessageRole::User => "User",
-                    axiom_core::MessageRole::Assistant => "Assistant",
-                    axiom_core::MessageRole::System => "System",
-                    axiom_core::MessageRole::Tool => "Tool",
+                    axiom_ai_core::MessageRole::User => "User",
+                    axiom_ai_core::MessageRole::Assistant => "Assistant",
+                    axiom_ai_core::MessageRole::System => "System",
+                    axiom_ai_core::MessageRole::Tool => "Tool",
                 },
                 message.text_content().unwrap_or("")
             ));

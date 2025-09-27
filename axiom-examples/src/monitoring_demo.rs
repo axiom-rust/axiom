@@ -3,8 +3,8 @@
 use std::sync::Arc;
 use std::time::Duration;
 
-use axiom_llm::{LlmGateway, OpenAIProvider, ProviderConfig, LlmRequest};
-use axiom_core::Message;
+use axiom_ai_llm::{LlmGateway, OpenAIProvider, ProviderConfig, LlmRequest};
+use axiom_ai_core::Message;
 
 /// Example of monitoring and observability features
 pub async fn run_monitoring_demo() -> anyhow::Result<()> {

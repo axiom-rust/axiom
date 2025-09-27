@@ -4,8 +4,10 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use axiom_core::{Message, StreamResponse, Result, AxiomError, Memory, MemoryType, Tool, ToolResult, Chain, ChainInput, ChainOutput};
-use axiom_llm::{LlmGateway, LlmRequest, LlmResponse};
+use axiom_ai_core::{Message, StreamResponse, Result, AxiomError, Memory, MemoryType, Tool, ToolResult};
+use axiom_ai_llm::{LlmGateway, LlmRequest};
+use crate::planner::{ExecutionPlan, PlanStep, PlanAction};
+use crate::executor::{ExecutionContext, StepResult};
 use crate::planner::Planner;
 use crate::executor::Executor;
 use crate::safety::SafetyGuard;
@@ -164,7 +166,7 @@ impl Agent {
         self.state.conversation.push(message.clone());
         
         // Store in memory
-        self.memory.store(axiom_core::MemoryItem::new(
+        self.memory.store(axiom_ai_core::MemoryItem::new(
             message.text_content().unwrap_or("").to_string(),
             MemoryType::ShortTerm,
             0.5,
@@ -196,7 +198,7 @@ impl Agent {
         self.state.conversation.push(message.clone());
         
         // Store in memory
-        self.memory.store(axiom_core::MemoryItem::new(
+        self.memory.store(axiom_ai_core::MemoryItem::new(
             message.text_content().unwrap_or("").to_string(),
             MemoryType::ShortTerm,
             0.5,
@@ -212,7 +214,7 @@ impl Agent {
     }
 
     /// Create an execution plan for the current conversation
-    async fn create_execution_plan(&self) -> Result<ExecutionPlan> {
+    async fn create_execution_plan(&mut self) -> Result<ExecutionPlan> {
         // Get relevant context from memory
         let context = self.get_relevant_context().await?;
         
@@ -269,16 +271,16 @@ impl Agent {
         
         // Convert result to stream
         let chunks = result.messages.into_iter().map(|msg| {
-            axiom_core::StreamChunk {
+            axiom_ai_core::StreamChunk {
                 content: msg.text_content().unwrap_or("").to_string(),
-                chunk_type: axiom_core::ChunkType::Text,
+                chunk_type: axiom_ai_core::ChunkType::Text,
                 metadata: None,
                 is_final: true,
             }
         });
 
         let stream = tokio_stream::iter(chunks.into_iter().map(Ok));
-        Ok(axiom_core::StreamResponse::new(stream))
+        Ok(axiom_ai_core::StreamResponse::new(stream))
     }
 
     /// Execute a single step in the plan
@@ -291,7 +293,7 @@ impl Agent {
                 self.call_tool(tool_name, arguments).await
             }
             PlanAction::UpdateMemory { content, memory_type } => {
-                self.update_memory(content, *memory_type).await
+                self.update_memory(content, memory_type.clone()).await
             }
             PlanAction::RetrieveMemory { query, limit } => {
                 self.retrieve_memory(query, *limit).await
@@ -308,9 +310,15 @@ impl Agent {
 
         let response = self.llm_gateway.generate(request).await?;
         
-        let message = Message::assistant(response.content);
+        let content = response.content.clone();
+        let message = Message::assistant(content.clone());
         
         Ok(StepResult {
+            step_id: "generate_response".to_string(),
+            success: true,
+            output: Some(content),
+            error: None,
+            duration_ms: 0,
             messages: vec![message],
             tool_calls: Vec::new(),
             metadata: HashMap::new(),
@@ -330,6 +338,11 @@ impl Agent {
             let safety_result = self.safety_guard.check_tool_call(tool_name, arguments).await?;
             if !safety_result.is_safe {
                 return Ok(StepResult {
+                    step_id: "safety_check_failed".to_string(),
+                    success: false,
+                    output: None,
+                    error: Some(format!("Safety check failed: {}", safety_result.reason)),
+                    duration_ms: 0,
                     messages: vec![Message::assistant(format!("Safety check failed: {}", safety_result.reason))],
                     tool_calls: Vec::new(),
                     metadata: HashMap::new(),
@@ -357,10 +370,15 @@ impl Agent {
         let response_message = if result.success {
             Message::assistant(format!("Tool '{}' executed successfully: {}", tool_name, result.content))
         } else {
-            Message::assistant(format!("Tool '{}' failed: {}", tool_name, result.error.unwrap_or_default()))
+            Message::assistant(format!("Tool '{}' failed: {}", tool_name, result.error.as_ref().unwrap_or(&"Unknown error".to_string())))
         };
 
         Ok(StepResult {
+            step_id: "call_tool".to_string(),
+            success: result.success,
+            output: Some(result.content),
+            error: result.error,
+            duration_ms: 0,
             messages: vec![response_message],
             tool_calls: vec![tool_call_record],
             metadata: HashMap::new(),
@@ -370,7 +388,7 @@ impl Agent {
 
     /// Update memory
     async fn update_memory(&mut self, content: &str, memory_type: MemoryType) -> Result<StepResult> {
-        let memory_item = axiom_core::MemoryItem::new(
+        let memory_item = axiom_ai_core::MemoryItem::new(
             content.to_string(),
             memory_type,
             0.5,
@@ -379,6 +397,11 @@ impl Agent {
         self.memory.store(memory_item).await?;
 
         Ok(StepResult {
+            step_id: "update_memory".to_string(),
+            success: true,
+            output: Some("Memory updated".to_string()),
+            error: None,
+            duration_ms: 0,
             messages: vec![Message::assistant("Memory updated".to_string())],
             tool_calls: Vec::new(),
             metadata: HashMap::new(),
@@ -400,6 +423,11 @@ impl Agent {
         };
 
         Ok(StepResult {
+            step_id: "retrieve_memory".to_string(),
+            success: true,
+            output: Some(content.clone()),
+            error: None,
+            duration_ms: 0,
             messages: vec![Message::assistant(content)],
             tool_calls: Vec::new(),
             metadata: HashMap::new(),
@@ -408,7 +436,7 @@ impl Agent {
     }
 
     /// Get relevant context from memory
-    async fn get_relevant_context(&self) -> Result<Vec<axiom_core::MemoryItem>> {
+    async fn get_relevant_context(&mut self) -> Result<Vec<axiom_ai_core::MemoryItem>> {
         let query = self.state.conversation.last()
             .and_then(|msg| msg.text_content())
             .unwrap_or("");
@@ -446,18 +474,7 @@ impl Agent {
     }
 }
 
-/// Result of executing a single step
-#[derive(Debug, Clone)]
-pub struct StepResult {
-    /// Messages generated by the step
-    pub messages: Vec<Message>,
-    /// Tool calls made in the step
-    pub tool_calls: Vec<ToolCallRecord>,
-    /// Metadata from the step
-    pub metadata: HashMap<String, serde_json::Value>,
-    /// Whether execution should stop
-    pub should_stop: bool,
-}
+// StepResult is defined in executor module
 
 /// Information about an available tool
 #[derive(Debug, Clone)]
@@ -467,7 +484,7 @@ pub struct ToolInfo {
     /// Tool description
     pub description: String,
     /// Tool parameters schema
-    pub parameters: axiom_core::ToolParameters,
+    pub parameters: axiom_ai_core::ToolParameters,
 }
 
 /// Request for planning
@@ -476,7 +493,7 @@ pub struct PlanningRequest {
     /// Current conversation
     pub conversation: Vec<Message>,
     /// Relevant context from memory
-    pub context: Vec<axiom_core::MemoryItem>,
+    pub context: Vec<axiom_ai_core::MemoryItem>,
     /// Available tools
     pub available_tools: Vec<ToolInfo>,
     /// Agent configuration

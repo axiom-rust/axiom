@@ -3,11 +3,10 @@ members = [
     "axiom-core",
     "axiom-llm",
     "axiom-agents",
-    "axiom-rag",
-    "axiom-wasm",
-    "axiom-monitoring",
-    "axiom-examples",
-    "simple_qa",
+    # "axiom-rag",  # Temporarily disabled due to build issues
+    # "axiom-wasm",  # Temporarily disabled due to build issues
+    # "axiom-monitoring",  # Temporarily disabled due to build issues
+    # "axiom-examples",  # Temporarily disabled for publishing
 ]
 resolver = "2"
 
@@ -46,10 +45,10 @@ tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 metrics = "0.22"
 metrics-exporter-prometheus = "0.13"
 
-# Vector operations and ML
-candle-core = "0.3"
-candle-nn = "0.3"
-candle-transformers = "0.3"
+# Vector operations and ML - temporarily disabled due to dependency conflicts
+# candle-core = "0.3"
+# candle-nn = "0.3"
+# candle-transformers = "0.3"
 
 # Database and storage
 sqlx = { version = "0.7", features = ["runtime-tokio-rustls", "postgres", "sqlite"] }

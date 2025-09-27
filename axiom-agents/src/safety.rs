@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use axiom_core::{Result, AxiomError};
+use axiom_ai_core::{Result, AxiomError};
 
 /// Trait for safety guards that validate agent actions
 #[async_trait]
@@ -232,7 +232,7 @@ impl SimpleSafetyGuard {
 /// Advanced safety guard using LLM for content analysis
 pub struct LLMSafetyGuard {
     /// LLM gateway for safety checks
-    llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>,
+    llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>,
     /// Model to use for safety checks
     model: String,
     /// Safety threshold (0.0 to 1.0)
@@ -244,7 +244,7 @@ pub struct LLMSafetyGuard {
 impl LLMSafetyGuard {
     /// Create a new LLM safety guard
     pub fn new(
-        llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>,
+        llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>,
         model: String,
         safety_threshold: f32,
     ) -> Self {
@@ -269,8 +269,8 @@ impl LLMSafetyGuard {
             content_type, content
         );
 
-        let request = axiom_llm::LlmRequest::new(
-            vec![axiom_core::Message::user(prompt)],
+        let request = axiom_ai_llm::LlmRequest::new(
+            vec![axiom_ai_core::Message::user(prompt)],
             self.model.clone(),
         );
 

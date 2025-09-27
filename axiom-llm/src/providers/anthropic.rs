@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-use axiom_core::{Message, StreamResponse, StreamChunk, ChunkType, Result, AxiomError};
+use axiom_ai_core::{Message, StreamResponse, StreamChunk, ChunkType, Result, AxiomError};
 use crate::gateway::{LlmRequest, LlmResponse};
 use super::{LlmProvider, ProviderConfig, create_http_client, handle_provider_error};
 
@@ -48,13 +48,13 @@ impl AnthropicProvider {
 
         for message in messages {
             match message.role {
-                axiom_core::MessageRole::System => {
+                axiom_ai_core::MessageRole::System => {
                     if let Some(text) = message.text_content() {
                         system_message.push_str(text);
                         system_message.push('\n');
                     }
                 }
-                axiom_core::MessageRole::User => {
+                axiom_ai_core::MessageRole::User => {
                     if let Some(text) = message.text_content() {
                         conversation_messages.push(AnthropicMessage {
                             role: "user".to_string(),
@@ -62,7 +62,7 @@ impl AnthropicProvider {
                         });
                     }
                 }
-                axiom_core::MessageRole::Assistant => {
+                axiom_ai_core::MessageRole::Assistant => {
                     if let Some(text) = message.text_content() {
                         conversation_messages.push(AnthropicMessage {
                             role: "assistant".to_string(),
@@ -70,7 +70,7 @@ impl AnthropicProvider {
                         });
                     }
                 }
-                axiom_core::MessageRole::Tool => {
+                axiom_ai_core::MessageRole::Tool => {
                     // Anthropic doesn't have tool messages in the same way
                     // We'll skip them for now
                 }

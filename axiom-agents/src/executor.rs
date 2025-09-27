@@ -3,8 +3,53 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use axiom_core::{Message, Result, AxiomError, Tool, ToolResult};
-use crate::agent::{PlanStep, StepResult, ToolCallRecord};
+use axiom_ai_core::{Message, Result, AxiomError, Tool, ToolResult};
+use crate::planner::{PlanStep, PlanAction};
+use crate::ToolCallRecord;
+
+/// Result of executing a plan step
+#[derive(Debug, Clone)]
+pub struct StepResult {
+    pub step_id: String,
+    pub success: bool,
+    pub output: Option<String>,
+    pub error: Option<String>,
+    pub duration_ms: u64,
+    pub messages: Vec<Message>,
+    pub tool_calls: Vec<ToolCallRecord>,
+    pub metadata: HashMap<String, serde_json::Value>,
+    pub should_stop: bool,
+}
+
+impl StepResult {
+    pub fn success(step_id: String, output: String, duration_ms: u64) -> Self {
+        Self {
+            step_id,
+            success: true,
+            output: Some(output),
+            error: None,
+            duration_ms,
+            messages: Vec::new(),
+            tool_calls: Vec::new(),
+            metadata: HashMap::new(),
+            should_stop: true,
+        }
+    }
+
+    pub fn failure(step_id: String, error: String, duration_ms: u64) -> Self {
+        Self {
+            step_id,
+            success: false,
+            output: None,
+            error: Some(error),
+            duration_ms,
+            messages: Vec::new(),
+            tool_calls: Vec::new(),
+            metadata: HashMap::new(),
+            should_stop: false,
+        }
+    }
+}
 
 /// Trait for executing agent plans
 #[async_trait]
@@ -17,7 +62,6 @@ pub trait Executor: Send + Sync {
 }
 
 /// Context for plan execution
-#[derive(Debug, Clone)]
 pub struct ExecutionContext {
     /// Available tools
     pub tools: HashMap<String, Box<dyn Tool>>,
@@ -77,14 +121,14 @@ impl ExecutionContext {
 /// Simple executor that executes steps sequentially
 pub struct SimpleExecutor {
     /// LLM gateway for generating responses
-    llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>,
+    llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>,
     /// Model to use for execution
     model: String,
 }
 
 impl SimpleExecutor {
     /// Create a new simple executor
-    pub fn new(llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>, model: String) -> Self {
+    pub fn new(llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>, model: String) -> Self {
         Self {
             llm_gateway,
             model,
@@ -99,22 +143,27 @@ impl Executor for SimpleExecutor {
         
         let result = match &step.action {
             crate::planner::PlanAction::GenerateResponse { prompt } => {
-                self.execute_generate_response(prompt, context).await?
+                self.execute_generate_response(&prompt, context).await?
             }
             crate::planner::PlanAction::CallTool { tool_name, arguments } => {
-                self.execute_call_tool(tool_name, arguments, context).await?
+                self.execute_call_tool(&tool_name, &arguments, context).await?
             }
             crate::planner::PlanAction::UpdateMemory { content, memory_type } => {
-                self.execute_update_memory(content, *memory_type, context).await?
+                self.execute_update_memory(&content, memory_type.clone(), context).await?
             }
             crate::planner::PlanAction::RetrieveMemory { query, limit } => {
-                self.execute_retrieve_memory(query, *limit, context).await?
+                self.execute_retrieve_memory(&query, *limit, context).await?
             }
         };
 
         let execution_time = start_time.elapsed().as_millis() as u64;
         
         Ok(StepResult {
+            step_id: step.id.clone(),
+            success: result.success,
+            output: result.output,
+            error: result.error,
+            duration_ms: execution_time,
             messages: result.messages,
             tool_calls: result.tool_calls,
             metadata: {
@@ -150,16 +199,23 @@ impl Executor for SimpleExecutor {
 impl SimpleExecutor {
     /// Execute a generate response action
     async fn execute_generate_response(&self, prompt: &str, context: &ExecutionContext) -> Result<StepResult> {
-        let request = axiom_llm::LlmRequest::new(
+        let start_time = std::time::Instant::now();
+        let request = axiom_ai_llm::LlmRequest::new(
             context.conversation.clone(),
             self.model.clone(),
         );
 
         let response = self.llm_gateway.generate(request).await?;
         
-        let message = Message::assistant(response.content);
+        let content = response.content.clone();
+        let message = Message::assistant(content.clone());
         
         Ok(StepResult {
+            step_id: "generate_response".to_string(),
+            success: true,
+            output: Some(content),
+            error: None,
+            duration_ms: start_time.elapsed().as_millis() as u64,
             messages: vec![message],
             tool_calls: Vec::new(),
             metadata: HashMap::new(),
@@ -187,10 +243,15 @@ impl SimpleExecutor {
         let response_message = if result.success {
             Message::assistant(format!("Tool '{}' executed successfully: {}", tool_name, result.content))
         } else {
-            Message::assistant(format!("Tool '{}' failed: {}", tool_name, result.error.unwrap_or_default()))
+            Message::assistant(format!("Tool '{}' failed: {}", tool_name, result.error.as_ref().unwrap_or(&"Unknown error".to_string())))
         };
 
         Ok(StepResult {
+            step_id: "call_tool".to_string(),
+            success: result.success,
+            output: Some(result.content),
+            error: result.error,
+            duration_ms: execution_time,
             messages: vec![response_message],
             tool_calls: vec![tool_call_record],
             metadata: HashMap::new(),
@@ -199,12 +260,17 @@ impl SimpleExecutor {
     }
 
     /// Execute an update memory action
-    async fn execute_update_memory(&self, content: &str, memory_type: axiom_core::MemoryType, context: &ExecutionContext) -> Result<StepResult> {
+    async fn execute_update_memory(&self, content: &str, memory_type: axiom_ai_core::MemoryType, context: &ExecutionContext) -> Result<StepResult> {
         // This would typically interact with a memory system
         // For now, we'll just create a response message
         let message = Message::assistant(format!("Memory updated with: {}", content));
         
         Ok(StepResult {
+            step_id: "update_memory".to_string(),
+            success: true,
+            output: Some(format!("Updated memory with content: {}", content)),
+            error: None,
+            duration_ms: 0,
             messages: vec![message],
             tool_calls: Vec::new(),
             metadata: HashMap::new(),
@@ -219,6 +285,11 @@ impl SimpleExecutor {
         let message = Message::assistant(format!("Retrieved memories for query: {}", query));
         
         Ok(StepResult {
+            step_id: "retrieve_memory".to_string(),
+            success: true,
+            output: Some(format!("Retrieved memories for query: {}", query)),
+            error: None,
+            duration_ms: 0,
             messages: vec![message],
             tool_calls: Vec::new(),
             metadata: HashMap::new(),
@@ -242,7 +313,7 @@ pub struct AdvancedExecutor {
 impl AdvancedExecutor {
     /// Create a new advanced executor
     pub fn new(
-        llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>,
+        llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>,
         model: String,
         max_retries: u32,
     ) -> Self {

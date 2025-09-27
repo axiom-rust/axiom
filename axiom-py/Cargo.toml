@@ -1,0 +1,47 @@
+[package]
+name = "axiom-py"
+version = "0.1.0"
+edition = "2021"
+authors = ["Axiom Contributors"]
+license = "MIT"
+description = "Python bindings for Axiom - A streaming-first, production-ready LangChain alternative"
+repository = "https://github.com/axiom-rust/axiom"
+
+[lib]
+name = "axiom_py"
+crate-type = ["cdylib"]
+
+[dependencies]
+# PyO3 for Python bindings
+pyo3 = { version = "0.20", features = ["extension-module"] }
+
+# Axiom crates - temporarily comment out problematic ones
+axiom-core = { path = "../axiom-core" }
+# axiom-llm = { path = "../axiom-llm" }
+# axiom-agents = { path = "../axiom-agents" }
+# axiom-rag = { path = "../axiom-rag" }
+# axiom-wasm = { path = "../axiom-wasm" }
+# axiom-monitoring = { path = "../axiom-monitoring" }
+
+# Async runtime
+tokio = { version = "1.0", features = ["full"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Serialization
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+
+# Error handling
+anyhow = "1.0"
+thiserror = "1.0"
+
+# Logging and tracing
+tracing = "0.1"
+
+# Utilities
+uuid = { version = "1.0", features = ["v4", "serde"] }
+chrono = { version = "0.4", features = ["serde"] }
+
+[build-dependencies]
+pyo3-build-config = "0.20"
