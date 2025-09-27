@@ -4,6 +4,7 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 
 use axiom_core::{Message, Result, AxiomError, MemoryType};
+// Types are defined in this module
 use crate::agent::{PlanningRequest, ToolInfo};
 
 /// Trait for planning agent execution

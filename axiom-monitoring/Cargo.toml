@@ -11,8 +11,8 @@ description = "Observability, metrics, and monitoring for Axiom"
 axiom-core = { path = "../axiom-core" }
 axiom-llm = { path = "../axiom-llm" }
 axiom-agents = { path = "../axiom-agents" }
-axiom-rag = { path = "../axiom-rag" }
-axiom-wasm = { path = "../axiom-wasm" }
+# axiom-rag = { path = "../axiom-rag" }  # Temporarily disabled due to build issues
+# axiom-wasm = { path = "../axiom-wasm" }  # Temporarily disabled due to build issues
 
 async-trait = { workspace = true }
 serde = { workspace = true }
