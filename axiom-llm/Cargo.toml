@@ -8,7 +8,7 @@ repository.workspace = true
 description = "Vendor-agnostic LLM gateway and provider implementations"
 
 [dependencies]
-axiom-ai-core = { path = "../axiom-core" }
+axiom-ai-core = "0.1.0"
 async-trait = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
