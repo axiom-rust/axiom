@@ -1,5 +1,5 @@
 [package]
-name = "axiom-llm"
+name = "axiom-ai-llm"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -8,7 +8,7 @@ repository.workspace = true
 description = "Vendor-agnostic LLM gateway and provider implementations"
 
 [dependencies]
-axiom-core = { path = "../axiom-core" }
+axiom-ai-core = { path = "../axiom-core" }
 async-trait = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

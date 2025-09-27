@@ -4,8 +4,8 @@ use async_trait::async_trait;
 use std::collections::HashMap;
 use std::sync::Arc;
 
-use axiom_core::{Message, StreamResponse, Result, AxiomError, Memory, MemoryType, Tool, ToolResult};
-use axiom_llm::{LlmGateway, LlmRequest};
+use axiom_ai_core::{Message, StreamResponse, Result, AxiomError, Memory, MemoryType, Tool, ToolResult};
+use axiom_ai_llm::{LlmGateway, LlmRequest};
 use crate::planner::{ExecutionPlan, PlanStep, PlanAction};
 use crate::executor::{ExecutionContext, StepResult};
 use crate::planner::Planner;
@@ -166,7 +166,7 @@ impl Agent {
         self.state.conversation.push(message.clone());
         
         // Store in memory
-        self.memory.store(axiom_core::MemoryItem::new(
+        self.memory.store(axiom_ai_core::MemoryItem::new(
             message.text_content().unwrap_or("").to_string(),
             MemoryType::ShortTerm,
             0.5,
@@ -198,7 +198,7 @@ impl Agent {
         self.state.conversation.push(message.clone());
         
         // Store in memory
-        self.memory.store(axiom_core::MemoryItem::new(
+        self.memory.store(axiom_ai_core::MemoryItem::new(
             message.text_content().unwrap_or("").to_string(),
             MemoryType::ShortTerm,
             0.5,
@@ -271,16 +271,16 @@ impl Agent {
         
         // Convert result to stream
         let chunks = result.messages.into_iter().map(|msg| {
-            axiom_core::StreamChunk {
+            axiom_ai_core::StreamChunk {
                 content: msg.text_content().unwrap_or("").to_string(),
-                chunk_type: axiom_core::ChunkType::Text,
+                chunk_type: axiom_ai_core::ChunkType::Text,
                 metadata: None,
                 is_final: true,
             }
         });
 
         let stream = tokio_stream::iter(chunks.into_iter().map(Ok));
-        Ok(axiom_core::StreamResponse::new(stream))
+        Ok(axiom_ai_core::StreamResponse::new(stream))
     }
 
     /// Execute a single step in the plan
@@ -388,7 +388,7 @@ impl Agent {
 
     /// Update memory
     async fn update_memory(&mut self, content: &str, memory_type: MemoryType) -> Result<StepResult> {
-        let memory_item = axiom_core::MemoryItem::new(
+        let memory_item = axiom_ai_core::MemoryItem::new(
             content.to_string(),
             memory_type,
             0.5,
@@ -436,7 +436,7 @@ impl Agent {
     }
 
     /// Get relevant context from memory
-    async fn get_relevant_context(&mut self) -> Result<Vec<axiom_core::MemoryItem>> {
+    async fn get_relevant_context(&mut self) -> Result<Vec<axiom_ai_core::MemoryItem>> {
         let query = self.state.conversation.last()
             .and_then(|msg| msg.text_content())
             .unwrap_or("");
@@ -484,7 +484,7 @@ pub struct ToolInfo {
     /// Tool description
     pub description: String,
     /// Tool parameters schema
-    pub parameters: axiom_core::ToolParameters,
+    pub parameters: axiom_ai_core::ToolParameters,
 }
 
 /// Request for planning
@@ -493,7 +493,7 @@ pub struct PlanningRequest {
     /// Current conversation
     pub conversation: Vec<Message>,
     /// Relevant context from memory
-    pub context: Vec<axiom_core::MemoryItem>,
+    pub context: Vec<axiom_ai_core::MemoryItem>,
     /// Available tools
     pub available_tools: Vec<ToolInfo>,
     /// Agent configuration

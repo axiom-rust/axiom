@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
 
-use axiom_core::{Result, AxiomError};
+use axiom_ai_core::{Result, AxiomError};
 
 /// Rate limiter using token bucket algorithm
 #[derive(Debug)]

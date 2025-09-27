@@ -5,7 +5,7 @@ use std::sync::Arc;
 use std::time::{Duration, Instant};
 use tokio::sync::RwLock;
 
-use axiom_core::AxiomError;
+use axiom_ai_core::AxiomError;
 use crate::gateway::{LlmRequest, LlmResponse};
 
 /// Metrics for LLM operations

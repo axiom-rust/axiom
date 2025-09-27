@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use axiom_core::{Tool, ToolResult, ToolParameters, ToolParameter, ParameterType, Result, AxiomError};
+use axiom_ai_core::{Tool, ToolResult, ToolParameters, ToolParameter, ParameterType, Result, AxiomError};
 
 /// Calculator tool for mathematical operations
 pub struct CalculatorTool;

@@ -2,9 +2,9 @@
 
 use std::sync::Arc;
 
-use axiom_core::{Message, Memory, InMemoryMemory, Tool, ToolResult, ToolParameters, ToolParameter, ParameterType};
-use axiom_llm::{LlmGateway, OpenAIProvider, ProviderConfig};
-use axiom_agents::{Agent, AgentConfig, SimplePlanner, SimpleExecutor, SimpleSafetyGuard};
+use axiom_ai_core::{Message, Memory, InMemoryMemory, Tool, ToolResult, ToolParameters, ToolParameter, ParameterType};
+use axiom_ai_llm::{LlmGateway, OpenAIProvider, ProviderConfig};
+use axiom_ai_agents::{Agent, AgentConfig, SimplePlanner, SimpleExecutor, SimpleSafetyGuard};
 
 /// Example of a basic agent
 pub async fn run_basic_agent_example() -> anyhow::Result<()> {

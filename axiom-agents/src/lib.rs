@@ -26,6 +26,6 @@ pub mod prelude {
         Executor, ExecutionContext,
         SafetyGuard, SafetyResult,
     };
-    pub use axiom_core::prelude::*;
-    pub use axiom_llm::prelude::*;
+    pub use axiom_ai_core::prelude::*;
+    pub use axiom_ai_llm::prelude::*;
 }

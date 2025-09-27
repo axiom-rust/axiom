@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use axiom_core::{Message, Result, AxiomError, Tool, ToolResult};
+use axiom_ai_core::{Message, Result, AxiomError, Tool, ToolResult};
 use crate::planner::{PlanStep, PlanAction};
 use crate::ToolCallRecord;
 
@@ -121,14 +121,14 @@ impl ExecutionContext {
 /// Simple executor that executes steps sequentially
 pub struct SimpleExecutor {
     /// LLM gateway for generating responses
-    llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>,
+    llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>,
     /// Model to use for execution
     model: String,
 }
 
 impl SimpleExecutor {
     /// Create a new simple executor
-    pub fn new(llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>, model: String) -> Self {
+    pub fn new(llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>, model: String) -> Self {
         Self {
             llm_gateway,
             model,
@@ -200,7 +200,7 @@ impl SimpleExecutor {
     /// Execute a generate response action
     async fn execute_generate_response(&self, prompt: &str, context: &ExecutionContext) -> Result<StepResult> {
         let start_time = std::time::Instant::now();
-        let request = axiom_llm::LlmRequest::new(
+        let request = axiom_ai_llm::LlmRequest::new(
             context.conversation.clone(),
             self.model.clone(),
         );
@@ -260,7 +260,7 @@ impl SimpleExecutor {
     }
 
     /// Execute an update memory action
-    async fn execute_update_memory(&self, content: &str, memory_type: axiom_core::MemoryType, context: &ExecutionContext) -> Result<StepResult> {
+    async fn execute_update_memory(&self, content: &str, memory_type: axiom_ai_core::MemoryType, context: &ExecutionContext) -> Result<StepResult> {
         // This would typically interact with a memory system
         // For now, we'll just create a response message
         let message = Message::assistant(format!("Memory updated with: {}", content));
@@ -313,7 +313,7 @@ pub struct AdvancedExecutor {
 impl AdvancedExecutor {
     /// Create a new advanced executor
     pub fn new(
-        llm_gateway: std::sync::Arc<axiom_llm::LlmGateway>,
+        llm_gateway: std::sync::Arc<axiom_ai_llm::LlmGateway>,
         model: String,
         max_retries: u32,
     ) -> Self {

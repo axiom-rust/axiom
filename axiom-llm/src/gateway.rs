@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use std::sync::Arc;
 use tokio::sync::RwLock;
 
-use axiom_core::{Message, StreamResponse, Result, AxiomError, ChainInput, ChainOutput};
+use axiom_ai_core::{Message, StreamResponse, Result, AxiomError, ChainInput, ChainOutput};
 use crate::providers::LlmProvider;
 use crate::retry::RetryConfig;
 use crate::rate_limit::RateLimitConfig;
@@ -327,9 +327,9 @@ impl LlmResponse {
     /// Convert to chain output
     pub fn to_chain_output(self) -> ChainOutput {
         ChainOutput {
-            messages: vec![axiom_core::Message::assistant(self.content)],
+            messages: vec![axiom_ai_core::Message::assistant(self.content)],
             data: self.metadata,
-            metadata: axiom_core::ChainMetadata {
+            metadata: axiom_ai_core::ChainMetadata {
                 execution_time_ms: self.generation_time_ms,
                 tokens_used: self.tokens_used,
                 cost: self.cost,

@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use serde::{Deserialize, Serialize};
 
-use axiom_core::{Message, StreamResponse, StreamChunk, ChunkType, Result, AxiomError};
+use axiom_ai_core::{Message, StreamResponse, StreamChunk, ChunkType, Result, AxiomError};
 use crate::gateway::{LlmRequest, LlmResponse};
 use super::{LlmProvider, ProviderConfig, create_http_client, handle_provider_error};
 
@@ -53,20 +53,20 @@ impl OpenAIProvider {
     fn convert_messages(&self, messages: &[Message]) -> Vec<OpenAIMessage> {
         messages.iter().map(|msg| {
             let role = match msg.role {
-                axiom_core::MessageRole::System => "system",
-                axiom_core::MessageRole::User => "user",
-                axiom_core::MessageRole::Assistant => "assistant",
-                axiom_core::MessageRole::Tool => "tool",
+                axiom_ai_core::MessageRole::System => "system",
+                axiom_ai_core::MessageRole::User => "user",
+                axiom_ai_core::MessageRole::Assistant => "assistant",
+                axiom_ai_core::MessageRole::Tool => "tool",
             };
 
             let content = match &msg.content {
-                axiom_core::MessageContent::Text(text) => text.clone(),
-                axiom_core::MessageContent::Parts(parts) => {
+                axiom_ai_core::MessageContent::Text(text) => text.clone(),
+                axiom_ai_core::MessageContent::Parts(parts) => {
                     // Convert parts to a single text content for now
                     // In a full implementation, you'd handle different part types
                     parts.iter()
                         .filter_map(|part| match part {
-                            axiom_core::MessagePart::Text(text) => Some(text.as_str()),
+                            axiom_ai_core::MessagePart::Text(text) => Some(text.as_str()),
                             _ => None,
                         })
                         .collect::<Vec<_>>()

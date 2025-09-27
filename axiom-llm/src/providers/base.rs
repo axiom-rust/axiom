@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use std::collections::HashMap;
 
-use axiom_core::{Message, StreamResponse, Result, AxiomError};
+use axiom_ai_core::{Message, StreamResponse, Result, AxiomError};
 use crate::gateway::{LlmRequest, LlmResponse};
 
 /// Trait that all LLM providers must implement
@@ -99,8 +99,8 @@ pub fn estimate_tokens(messages: &[Message]) -> usize {
 /// Estimate the number of tokens in a single message
 pub fn estimate_message_tokens(message: &Message) -> usize {
     let content = match &message.content {
-        axiom_core::MessageContent::Text(text) => text,
-        axiom_core::MessageContent::Parts(parts) => {
+        axiom_ai_core::MessageContent::Text(text) => text,
+        axiom_ai_core::MessageContent::Parts(parts) => {
             // Estimate tokens for all parts
             return parts.iter().map(estimate_part_tokens).sum();
         }
@@ -113,18 +113,18 @@ pub fn estimate_message_tokens(message: &Message) -> usize {
 }
 
 /// Estimate tokens for a message part
-pub fn estimate_part_tokens(part: &axiom_core::MessagePart) -> usize {
+pub fn estimate_part_tokens(part: &axiom_ai_core::MessagePart) -> usize {
     match part {
-        axiom_core::MessagePart::Text(text) => (text.len() + 3) / 4 + 5,
-        axiom_core::MessagePart::Image { data, .. } => {
+        axiom_ai_core::MessagePart::Text(text) => (text.len() + 3) / 4 + 5,
+        axiom_ai_core::MessagePart::Image { data, .. } => {
             // Images are typically represented as base64, estimate based on size
             (data.len() + 3) / 4 + 20
         }
-        axiom_core::MessagePart::ToolCall { name, arguments, .. } => {
+        axiom_ai_core::MessagePart::ToolCall { name, arguments, .. } => {
             let args_str = serde_json::to_string(arguments).unwrap_or_default();
             (name.len() + args_str.len() + 3) / 4 + 15
         }
-        axiom_core::MessagePart::ToolResult { content, .. } => {
+        axiom_ai_core::MessagePart::ToolResult { content, .. } => {
             (content.len() + 3) / 4 + 10
         }
     }
