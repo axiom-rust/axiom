@@ -1,1 +1,0 @@
-Pin<Box<dyn tokio_stream::Stream<Item = std::result::Result<stream::StreamChunk, error::AxiomError>> + std::marker::Send>>

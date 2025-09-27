@@ -1,0 +1,9 @@
+# Tell GitHub linguist to ignore build artifacts
+target/** linguist-vendored
+*.d linguist-generated
+target/ linguist-vendored
+
+# Ensure Rust files are properly detected
+*.rs linguist-language=Rust
+Cargo.toml linguist-language=Rust
+Cargo.lock linguist-language=Rust

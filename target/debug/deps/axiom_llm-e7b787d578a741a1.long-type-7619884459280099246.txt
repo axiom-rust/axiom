@@ -1,1 +1,0 @@
-tokio_stream::adapters::Map<impl Stream<Item = Result<bytes::bytes::Bytes, reqwest::Error>>, {closure@axiom-llm/src/providers/anthropic.rs:209:59: 209:66}>
