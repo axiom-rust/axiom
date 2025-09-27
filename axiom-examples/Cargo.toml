@@ -1,0 +1,27 @@
+[package]
+name = "axiom-examples"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Example applications and demos for Axiom"
+
+[[bin]]
+name = "axiom-examples"
+path = "src/main.rs"
+
+[dependencies]
+axiom-core = { path = "../axiom-core" }
+axiom-llm = { path = "../axiom-llm" }
+axiom-agents = { path = "../axiom-agents" }
+axiom-rag = { path = "../axiom-rag" }
+axiom-wasm = { path = "../axiom-wasm" }
+
+tokio = { workspace = true, features = ["full"] }
+serde = { workspace = true }
+serde_json = { workspace = true }
+anyhow = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+clap = { version = "4.0", features = ["derive"] }

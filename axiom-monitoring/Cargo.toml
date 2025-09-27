@@ -1,0 +1,34 @@
+[package]
+name = "axiom-monitoring"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Observability, metrics, and monitoring for Axiom"
+
+[dependencies]
+axiom-core = { path = "../axiom-core" }
+axiom-llm = { path = "../axiom-llm" }
+axiom-agents = { path = "../axiom-agents" }
+axiom-rag = { path = "../axiom-rag" }
+axiom-wasm = { path = "../axiom-wasm" }
+
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+futures = { workspace = true }
+
+# Metrics and monitoring
+metrics = { workspace = true }
+metrics-exporter-prometheus = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"

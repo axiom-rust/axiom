@@ -1,0 +1,25 @@
+[package]
+name = "axiom-wasm"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "WASM sandboxing for safe agent execution"
+
+[dependencies]
+axiom-core = { path = "../axiom-core" }
+wasmtime = { workspace = true }
+wasmtime-wasi = { workspace = true }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"

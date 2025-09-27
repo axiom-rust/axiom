@@ -1,0 +1,27 @@
+[package]
+name = "axiom-core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Core abstractions and traits for Axiom"
+
+[dependencies]
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["sync", "time"] }
+tokio-stream = "0.1"
+futures = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+url = { workspace = true }
+reqwest = { workspace = true }
+toml = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"

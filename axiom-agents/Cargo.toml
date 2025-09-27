@@ -1,0 +1,25 @@
+[package]
+name = "axiom-agents"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+description = "Agent framework with tools, memory, and execution planning"
+
+[dependencies]
+axiom-core = { path = "../axiom-core" }
+axiom-llm = { path = "../axiom-llm" }
+async-trait = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tokio = { workspace = true, features = ["full"] }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
+tracing = { workspace = true }
+uuid = { workspace = true }
+chrono = { workspace = true }
+futures = { workspace = true }
+
+[dev-dependencies]
+tokio-test = "0.4"
