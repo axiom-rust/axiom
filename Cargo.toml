@@ -2,7 +2,7 @@
 members = [
     "axiom-core",
     "axiom-llm",
-    # "axiom-agents",  # Temporarily disabled for publishing
+    "axiom-agents",
     # "axiom-rag",  # Temporarily disabled due to build issues
     # "axiom-wasm",  # Temporarily disabled due to build issues
     # "axiom-monitoring",  # Temporarily disabled due to build issues
